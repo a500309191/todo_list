@@ -1,0 +1,331 @@
+::-webkit-scrollbar {
+    display: none;
+}
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+$text-color: #323232;
+$color-0: #F4F7EF;
+$color-1: #EBEDE6;
+$color-2: #D5D8D0;
+$color-3: #6D6E6B;
+$red-1: #D97070;
+$red-2: #C79592;
+$red-3: #A74242;
+$green-1: #50C878;
+$green-2: #34824F;
+
+div * {
+    font-family: Arial;
+    color: $text-color;
+    text-decoration: none;
+}
+
+
+.app {
+    display: grid;
+    grid-template-columns: 20% 1fr 20%;
+    grid-template-rows: 20px 90vh auto;
+    grid-template-areas:
+        '. . .'
+        '. window info'
+        '. . .';
+    justify-content: center;
+    column-gap: 20px;
+}
+
+.window {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+    grid-area: window;
+    min-width: 256px;
+}
+
+
+.task-info {
+    grid-area: info;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    background-color: $color-2;
+    // color: white;
+    // font-weight: bold;
+    width: 100px;
+    height: 25px;
+    opacity: 0.75;
+}
+
+.task-list {
+    grid-row: 1;
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+    min-width: 460px;
+    max-width: 700px;
+    height: 65vh;
+    overflow-y: scroll;
+    //border: 1px solid #ccc;
+    //padding: 10px;
+}
+
+
+.task {
+    display: grid;
+    grid-template-columns: 150px auto auto;
+    grid-template-areas:
+        'title title title'
+        'body body body'
+        'files files files'
+        'date upload-file buttons';
+    gap: 6px;
+    padding: 3px;
+    background-color: rgba(250, 250, 250, 0.7);
+    border: 3px solid $color-2;
+
+}
+
+.task-title-update,
+.task-title {
+    display: flex;
+    align-items: center;
+    background-color: $color-2;
+    padding: 5px;
+    padding-left: 15px;
+    grid-area: title;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 6px;
+}
+.task-body-update,
+.task-body {
+    display: flex;
+    background-color: $color-1;
+    // padding: 5px;
+    padding: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    font-size: 14px;
+    word-break: break-word;
+    //overflow-wrap: break-word;
+    grid-area: body;
+    min-height: 20px;
+}
+.task-files,
+.task-files-update {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    position: relative;
+    grid-area: files;
+    flex-wrap: wrap;
+}
+
+.task-file,
+.task-file-update,
+.task-file-upload {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: $color-1;
+    padding: 3px;
+    cursor: pointer;
+}
+
+.task-file-update {
+    animation-name: header-back-button;
+    animation-duration: 0.8s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    animation-direction: alternate;
+    opacity: 0.9;
+}
+@keyframes header-back-button {
+    from {background-color: $color-1;}
+    to {background-color: $color-2;}
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.task-file-upload {
+    cursor: pointer;
+    grid-area: upload-file;
+    min-width: 80px;
+    opacity: 0.75;
+}
+
+.task-date-update,
+.task-date {
+    background-color: $color-1;
+    width: auto;
+    padding: 5px;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;    
+    grid-area: date;
+}
+
+.task-title-update,
+.task-title-update:focus,
+.task-body-update,
+.task-body-update:focus,
+.task-date-update,
+.task-date-update:focus {
+    box-sizing: border-box;
+    border: none;
+    outline: none;
+    background-color: rgba(237, 235, 230, 0.5);
+}
+
+.task-body-update {
+    resize: none;
+}
+
+
+.task-buttons {
+    display: flex;
+    gap: 6px;
+    justify-content: right;
+    justify-self: right;
+    grid-area: buttons;
+    width: 200px;
+}
+
+
+.done-button,
+.edit-button,
+.remove-button,
+.accept-button,
+.cancel-button,
+.add-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3px;
+    background-color: $color-3;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    color: white;
+    cursor: pointer;
+    //min-height: 20px;
+    //width: 80px;
+    width: 100%;
+    opacity: 0.7;
+    transition-duration: 0.3s;
+}
+
+.edit-button:hover,
+.remove-button:hover,
+.accept-button:hover,
+.cancel-button:hover,
+.add-button:hover {
+    opacity: 0.9;
+}
+.done-button {
+    width: 100%;
+}
+.remove-button {
+    background-color: $red-1;
+}
+.cancel-button {
+    min-width: 22px;
+    max-width: 22px;
+}
+.accept-button {
+    min-width: 22px;
+    max-width: 22px;
+    background-color: $green-1;
+}
+.add-button {
+    width: 97px;
+}
+
+
+
+.new-task {
+    display: grid;
+    grid-template-columns: 150px auto;
+    grid-template-areas:
+        'header header'
+        'title title'
+        'body body'
+        'date button';
+    gap: 6px;
+    padding: 5px;
+    width: 100%;
+    min-width: 460px;
+    max-width: 700px;
+}
+.new-task-header {
+    font-size: 12px;
+    grid-area: header;
+}
+.new-task-title {
+    grid-area: title;
+}
+.new-task-body {
+    grid-area: body;
+    min-height: 50px;
+    resize: none;
+}
+.new-task-date {
+    grid-area: date;
+}
+.add-button {
+    grid-area: button;
+    justify-self: end;
+    min-height: 22px;
+}
+
+
+
+.new-task-title,
+.new-task-body,
+.new-task-date {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    -webkit-transition: 0.5s;
+    transition: 1s;
+    outline: none;
+}
+
+.new-task-title:focus,
+.new-task-body:focus,
+.new-task-date:focus {
+    border: 1px solid #555;
+}
+
+
+
+
+
+
+.hide {
+    opacity: 0;
+    visibility: hidden;
+    transition-duration: 0.3s;
+}
+
+.overdue { border: 3px solid $red-1; }
+.overdue-title { color: $red-3; }
+
+.done { border: 3px solid $green-1; }
+.done-title { color: $green-2; }
+
+.red { background-color: $red-1; }
+.green { background-color: $green-1; }
+
+@media screen and (max-width: 820px) { .task-info { visibility: hidden; } }

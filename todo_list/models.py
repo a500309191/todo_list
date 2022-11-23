@@ -5,6 +5,7 @@ class Task(models.Model):
     title = models.CharField(max_length=25)
     body = models.TextField(max_length=250)
     expiry_date = models.DateTimeField()
+    is_done = models.BooleanField(default=False)
 
     time_create = models.DateTimeField(auto_now_add=True)
     time_update = models.DateTimeField(auto_now=True)

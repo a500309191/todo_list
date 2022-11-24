@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Fetch } from "./Fetch"
 import { NoTasks } from "./NoTasks"
 import { TasksProps } from "./Schemas"
@@ -8,11 +8,8 @@ import { TasksProps } from "./Schemas"
 export const TaskList = () => {
     return (
         <Fetch
-            uri = "http://127.0.0.1:8000/api/tasks/"
-            renderSuccess = {({data}: TasksProps) => {
-                if (data.length > 0) return <TaskListView data={data}/>
-                else return <NoTasks />
-            }}
+            uri = "/api/tasks/"
+            renderSuccess = {({data}: TasksProps) => <TaskListView data={data}/>}
         />
     )
 }
@@ -40,13 +37,13 @@ const TaskListView = (props: TasksProps) => {
 
     const updateData = () => {
         console.log("data updated")
-        fetch("http://localhost:8000/api/tasks/")
+        fetch("/api/tasks/")
         .then((response) => { return response.json() })
         .then((result) => { setTasks(result) })
     }
 
     const removeTask = (id: number) => {
-        fetch(`http://localhost:8000/api/tasks/${id}`, { method: "DELETE" })
+        fetch(`/api/tasks/${id}/`, { method: "DELETE" })
         .then(() => updateData())
     }
 
@@ -56,7 +53,7 @@ const TaskListView = (props: TasksProps) => {
             "body": `${updateBody ? updateBody : body}`,
             "expiry_date": `${updateDate ? updateDate : date}`
         })
-        fetch(`http://localhost:8000/api/tasks/${id}/`, { 
+        fetch(`/api/tasks/${id}/`, { 
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: req_body
@@ -80,7 +77,7 @@ const TaskListView = (props: TasksProps) => {
             "expiry_date": `${updateDate ? updateDate : date}`,
             "is_done": `${done ? false : true}`
         })
-        fetch(`http://localhost:8000/api/tasks/${id}/`, { 
+        fetch(`/api/tasks/${id}/`, { 
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: req_body
@@ -99,7 +96,7 @@ const TaskListView = (props: TasksProps) => {
             "expiry_date": date
         })
 
-        fetch("http://localhost:8000/api/tasks/", {
+        fetch("/api/tasks/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: req_body
@@ -110,7 +107,7 @@ const TaskListView = (props: TasksProps) => {
     const deleteFile = (id: number) => {
         const req_body = JSON.stringify({ "id": id })
 
-        fetch("http://localhost:8000/file-handler/", {
+        fetch("/file-handler/", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: req_body
@@ -128,7 +125,7 @@ const TaskListView = (props: TasksProps) => {
             formData.append('file', file)
             formData.append('task_id', id.toString())
 
-            fetch('http://localhost:8000/file-handler/', {
+            fetch('/file-handler/', {
                 method: 'POST',
                 body: formData
             })
@@ -153,140 +150,149 @@ const TaskListView = (props: TasksProps) => {
     }
     
 
-
     return (
         <>
-        <div className="task-info">{tasks.length > 1 ? `${tasks.length} TASKS` : "" }</div>
+        {tasks.length > 1 ? <div className="task-info">{`${tasks.length} TASKS`}</div> : <></> }
         <div className="window">
-        <div className="task-list">
+        {tasks.length > 0 ?
+            <>
+            <div className="task-list">
 
-            {tasks.map((task, index) => {
+                {tasks.map((task, index) => {
 
-                const date = new Date(task.expiry_date)
-                const [Y,M,D,h,m] = [
-                    date.getFullYear(),
-                    `${date.getMonth() < 10 ? `0${date.getMonth()}` : date.getMonth()}`,
-                    `${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}`,
-                    `${date.getHours() < 10 ? `0${date.getHours()}` : date.getHours()}`,
-                    `${date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes()}`,
-                ]
+                    const date = new Date(task.expiry_date)
+                    const [Y,M,D,h,m] = [
+                        date.getFullYear(),
+                        `${date.getMonth()+1 < 10 ? `0${date.getMonth()+1}` : date.getMonth()+1}`,
+                        `${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}`,
+                        `${date.getHours() < 10 ? `0${date.getHours()}` : date.getHours()}`,
+                        `${date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes()}`,
+                    ]
 
-                const expDateStamp = Date.parse(task.expiry_date)
+                    const expDateStamp = Date.parse(task.expiry_date)
 
-                return (
-                    <div
-                        className={`${nowStamp > expDateStamp && !task.is_done
-                            ? "overdue task"
-                            : `${task.is_done ? "done task" : "task"}`
-                        }`} 
-                        key={task.id}
-                    >
-                        <input
-                            className={changeClassName("task-title-update", task.id, true)}
-                            maxLength={25} 
-                            onChange={e => setUpdateTitle(e.target.value)}
-                            defaultValue={task.title}
-                            ref={e => (titleRefs.current[index] = e)}
-                        />
-                        <textarea
-                            className={changeClassName("task-body-update", task.id, true)}
-                            maxLength={250} 
-                            onChange={e => setUpdateBody(e.target.value)}
-                            defaultValue={task.body}
-                            ref={e => (bodyRefs.current[index] = e)}
-                        ></textarea>
-                        <div className={changeClassName("task-files-update", task.id, true)}>
-                            {task.files.map((file, index) => {
-                                return (
-                                    <div
-                                        className="task-file-update"
-                                        onClick={() => deleteFile(file.id)}
-                                        key={file.id}
-                                    >file {index+1}</div>
-                                )
-                            })}
-                        </div>
-                        <input
-                            className={changeClassName("task-date-update", task.id, true)}
-                            type="datetime-local"
-                            onChange={e => setUpdateDate(e.target.value)}
-                            defaultValue={task.expiry_date}
-                            ref={e => (dateRefs.current[index] = e)}
-                        />
-                        <label htmlFor={`file-upload-${task.id}`} className={changeClassName("task-file-upload", task.id, true)}>
-                            upload file
-                        </label>
-                        <input type="file" multiple id={`file-upload-${task.id}`} onChange={e => uploadFile(e, task.id)}/>
+                    return (
+                        <div
+                            className={`${nowStamp > expDateStamp && !task.is_done
+                                ? "overdue task"
+                                : `${task.is_done ? "done task" : "task"}`
+                            }`} 
+                            key={task.id}
+                        >
+                            <input
+                                className={changeClassName("task-title-update", task.id, true)}
+                                maxLength={25} 
+                                onChange={e => setUpdateTitle(e.target.value)}
+                                defaultValue={task.title}
+                                ref={e => (titleRefs.current[index] = e)}
+                            />
+                            <textarea
+                                className={changeClassName("task-body-update", task.id, true)}
+                                maxLength={250} 
+                                onChange={e => setUpdateBody(e.target.value)}
+                                defaultValue={task.body}
+                                ref={e => (bodyRefs.current[index] = e)}
+                            ></textarea>
+                            <div className={changeClassName("task-files-update", task.id, true)}>
+                                {task.files.map((file, index) => {
+                                    return (
+                                        <div
+                                            className="task-file-update"
+                                            onClick={() => deleteFile(file.id)}
+                                            key={file.id}
+                                        >file {index+1}</div>
+                                    )
+                                })}
+                            </div>
+                            <input
+                                className={changeClassName("task-date-update", task.id, true)}
+                                type="datetime-local"
+                                //onChange={e => setUpdateDate(e.target.value)}
+                                onChange={e => {
+                                    const datetime = new Date(e.target.value)
+                                    setUpdateDate(datetime.toISOString())
+                                }}
+                                defaultValue={task.expiry_date}
+                                ref={e => (dateRefs.current[index] = e)}
+                            />
+                            <label htmlFor={`file-upload-${task.id}`} className={changeClassName("task-file-upload", task.id, true)}>
+                                upload file
+                            </label>
+                            <input type="file" multiple id={`file-upload-${task.id}`} onChange={e => uploadFile(e, task.id)}/>
 
-                        <div className={changeClassName("task-title", task.id)}>
-                        
-                            {nowStamp > expDateStamp  && !task.is_done
-                            ? <div className="overdue-title">OVERDUE&nbsp;&nbsp;</div>
-                            : task.is_done ? <div className="done-title">DONE&nbsp;&nbsp;</div> : ""
-                            }
-                            {task.title}
+                            <div className={changeClassName("task-title", task.id)}>
+                            
+                                {nowStamp > expDateStamp && !task.is_done
+                                ? <div className="overdue-title">OVERDUE&nbsp;&nbsp;</div>
+                                : task.is_done ? <div className="done-title">DONE&nbsp;&nbsp;</div> : ""
+                                }
+                                {task.title}
 
-                        </div>
-                        <div className={changeClassName("task-body", task.id)}>{task.body}</div>
-                        <div className={changeClassName("task-files", task.id)}>
-                            {task.files.map((file, index) => {
-                                return <a href={file.file} className="task-file" key={file.id}>file {index+1}</a> 
-                            })}
-                        </div>
-                        <div className={changeClassName("task-date", task.id)}>{h}:{m} / {D}.{M}.{Y}</div>
+                            </div>
+                            <div className={changeClassName("task-body", task.id)}>{task.body}</div>
+                            <div className={changeClassName("task-files", task.id)}>
+                                {task.files.map((file, index) => {
+                                    return <a href={file.file} className="task-file" key={file.id}>file {index+1}</a> 
+                                })}
+                            </div>
+                            <div className={changeClassName("task-date", task.id)}>{h}:{m} / {D}.{M}.{Y}</div>
 
 
-                        <div className="task-buttons">
-                            {edit.includes(task.id)
-                                ? <>
-                                    <div
-                                        className={task.is_done ? "red done-button" : "green done-button"}
-                                        onClick={() => {
-                                            makeTaskDone(task.id, task.title, task.body, date.toISOString(), task.is_done)
-                                        }}
-                                    >{`${task.is_done ? "UNDO" : "MAKE DONE"}`}
-                                    </div>
-                                    <div
-                                        className="accept-button"
-                                        onClick={() => {
-                                            if (isDataChanged()) {
-                                                updateTask(task.id, task.title, task.body, date.toISOString())
-                                            } else {
-                                                console.log("DATA WAS NOT CHANGED")
+                            <div className="task-buttons">
+                                {edit.includes(task.id)
+                                    ? <>
+                                        <div
+                                            className={task.is_done ? "red done-button" : "green done-button"}
+                                            onClick={() => {
+                                                makeTaskDone(task.id, task.title, task.body, date.toISOString(), task.is_done)
+                                            }}
+                                        >{`${task.is_done ? "UNDO" : "MAKE DONE"}`}
+                                        </div>
+                                        <div
+                                            className="accept-button"
+                                            onClick={() => {
+                                                if (isDataChanged()) {
+                                                    updateTask(task.id, task.title, task.body, date.toISOString())
+                                                } else {
+                                                    console.log("DATA WAS NOT CHANGED")
+                                                    setEdit([])
+                                                }
+                                            }}
+                                        >✔</div>
+                                        <div
+                                            className="cancel-button"
+                                            onClick={() => {
                                                 setEdit([])
-                                            }
-                                        }}
-                                    >✔</div>
-                                    <div
-                                        className="cancel-button"
-                                        onClick={() => {
-                                            setEdit([])
-                                            titleRefs.current[index].value = task.title
-                                            bodyRefs.current[index].value = task.body
-                                            dateRefs.current[index].value = task.expiry_date
-                                        }}
-                                    >X</div>
-                                </> : <>
-                                    <div
-                                        className="edit-button"
-                                        onClick={() => {
-                                            setEdit([task.id])
-                                            setUpdateTitle("")
-                                            setUpdateBody("")
-                                            setUpdateDate("")
-                                        }}
-                                    >EDIT</div>
-                                    <div
-                                        className="remove-button"
-                                        onClick={() => removeTask(task.id)}
-                                    >REMOVE</div>
-                                </>
-                            }
+                                                titleRefs.current[index].value = task.title
+                                                bodyRefs.current[index].value = task.body
+                                                dateRefs.current[index].value = task.expiry_date
+                                            }}
+                                        >X</div>
+                                    </> : <>
+                                        <div
+                                            className="edit-button"
+                                            onClick={() => {
+                                                setEdit([task.id])
+                                                setUpdateTitle("")
+                                                setUpdateBody("")
+                                                setUpdateDate("")
+                                            }}
+                                        >EDIT</div>
+                                        <div
+                                            className="remove-button"
+                                            onClick={() => removeTask(task.id)}
+                                        >REMOVE</div>
+                                    </>
+                                }
+                            </div>
                         </div>
-                    </div>
-                )
-            })}
-        </div>
+                    )
+                })}
+            </div>
+            </>
+            : <NoTasks />
+        }
+
         <div className="new-task">
             <div className="new-task-header">CREATE NEW TASK:</div>
             <input
@@ -302,7 +308,11 @@ const TaskListView = (props: TasksProps) => {
             <input
                 className="new-task-date"
                 type="datetime-local"
-                onChange={e => setDate(e.target.value)}/>
+                onChange={e => {
+                    const datetime = new Date(e.target.value)  
+                    setDate(datetime.toISOString())
+                }}
+            />
             <div
                 className="add-button"
                 onClick={() => isDataFilled() ? addTask() : console.log("FILL ALL FIELDS")}

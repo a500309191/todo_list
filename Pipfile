@@ -11,6 +11,11 @@ django-cors-headers = "*"
 cloudinary = "*"
 python-decouple = "*"
 django-cloudinary-storage = "*"
+python-dotenv = "*"
+django-on-heroku = "*"
+gunicorn = "*"
+django-extensions = "*"
+whitenoise = "*"
 
 [dev-packages]
 

@@ -23,7 +23,6 @@ class File(models.Model):
         null=True,
         blank=False,
     )
-    #file = models.FileField(null=True, blank=True, upload_to="files/")
     file = models.CharField(max_length=1000, blank=True)
     public_id = models.CharField(max_length=1000, blank=True)
 

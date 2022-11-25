@@ -34,7 +34,9 @@ const TaskListView = (props: TasksProps) => {
 
     const nowStamp = Date.now()
 
-
+    /**
+     * function uploads data and set it to state "tasks" 
+     */
     const updateData = () => {
         console.log("data updated")
         fetch("/api/tasks/")
@@ -42,11 +44,22 @@ const TaskListView = (props: TasksProps) => {
         .then((result) => { setTasks(result) })
     }
 
+    /**
+     * function sends DELETE request to remove task from DB
+     * @param id {number} task id
+     */
     const removeTask = (id: number) => {
         fetch(`/api/tasks/${id}/`, { method: "DELETE" })
         .then(() => updateData())
     }
 
+    /**
+     * function sends PUT request to update task fields
+     * @param id {number}
+     * @param title {string}
+     * @param body {string}
+     * @param date {string}
+     */
     const updateTask = (id: number, title: string, body: string, date: string) => {
         const req_body = JSON.stringify({
             "title": `${updateTitle ? updateTitle : title}`,
@@ -64,6 +77,16 @@ const TaskListView = (props: TasksProps) => {
         .then(() => setEdit([]))
     }
 
+    /**
+     * function sends PUT request to change task status
+     * if task field "is_done" = false, func makes it true and vise-versa
+     * if other fields were changed, task will be updated
+     * @param id {number}
+     * @param title {string}
+     * @param body {string}
+     * @param date {string}
+     * @param done {boolean}
+     */
     const makeTaskDone = (
         id: number,
         title: string,
@@ -88,14 +111,16 @@ const TaskListView = (props: TasksProps) => {
         .then(() => setEdit([]))
     }
 
-
+    /**
+     * function sends POST request to create new task in DB
+     * it gets task fields (title, body, date) from eponymous states
+     */
     const addTask = () => {
         const req_body = JSON.stringify({
             "title": title,
             "body": body,
             "expiry_date": date
         })
-
         fetch("/api/tasks/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -104,6 +129,10 @@ const TaskListView = (props: TasksProps) => {
         .then(() => updateData())
     }
 
+    /**
+     * function sends DELETE request to delete file which attached to task which id function gets
+     * @param id {number} task id 
+     */
     const deleteFile = (id: number) => {
         const req_body = JSON.stringify({ "id": id })
 
@@ -115,6 +144,11 @@ const TaskListView = (props: TasksProps) => {
         .then(() => updateData())
     }
 
+    /**
+     * function sends POST request to add file to storage and make record with file info to DB
+     * @param e {Object}
+     * @param id {number}
+     */
     const uploadFile = (e: any, id: number) => {
         const filesDict = e.target.files
 
@@ -135,16 +169,33 @@ const TaskListView = (props: TasksProps) => {
         }
     }
 
-
+    /**
+     * function add "hide" word to className of html element
+     * if task is being edited "hide" word helps to hide html elements which are not needed to display and vise-versa
+     * @param className {string} className which you want to use for html element
+     * @param id {number} task id
+     * @param reverse {boolean} by reverse argument can be used to regulate "hide" word addition to className
+     * @returns 
+     */
     const changeClassName = (className: string, id: number, reverse: boolean=false) => {
         if (reverse) {return edit.includes(id) ? className : `hide ${className}` }
         else { return edit.includes(id) ? `hide ${className}` : className }    
     }
 
+
+    /**
+     * function checks is any field of the task updating form changed or not
+     * @returns {boolean} 
+     */
     const isDataChanged = () => {
         if (updateTitle || updateBody || updateDate) { return true } else { return false }
     }
 
+
+    /**
+     * function checks all fields of the task addition form are filled in or not 
+     * @returns {boolean} 
+     */
     const isDataFilled = () => {
         if (title && body && date) { return true } else { return false }
     }
@@ -207,7 +258,6 @@ const TaskListView = (props: TasksProps) => {
                             <input
                                 className={changeClassName("task-date-update", task.id, true)}
                                 type="datetime-local"
-                                //onChange={e => setUpdateDate(e.target.value)}
                                 onChange={e => {
                                     const datetime = new Date(e.target.value)
                                     setUpdateDate(datetime.toISOString())
